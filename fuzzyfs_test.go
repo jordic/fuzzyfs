@@ -1,4 +1,4 @@
-package main
+package fuzzyfs
 
 import (
 	//"fmt"
@@ -7,7 +7,7 @@ import (
 
 func TestDirList(t *testing.T) {
 
-	llista := NewDirList(100)
+	llista := NewDirList()
 
 	a1 := llista.Add("a1", nil)
 	a2 := llista.Add("a2", a1)
@@ -21,12 +21,12 @@ func TestDirList(t *testing.T) {
 		t.Errorf("%#v, %#v", b, a3)
 	}
 
-	r := llista.Get("a2")
+	r := llista.Get("a2", -1)
 	if *r != *a2 {
 		t.Errorf("%s, %s", *r, *a2)
 	}
 
-	r1 := llista.Get("a3")
+	r1 := llista.Get("a3", 1)
 	if r1 != a3 {
 		t.Errorf("%s<>%s", &r1, &a3)
 	}
@@ -51,12 +51,32 @@ func TestDirList(t *testing.T) {
 		t.Errorf("%s!=parents", m)
 	}
 
-	if a5.Path() != "a1/a3/a5/" {
-		t.Errorf("%s!=a1/a3/a5/", a5.Path())
+	if a5.Path() != "a1/a3/a5" {
+		t.Errorf("%s!=a1/a3/a5", a5.Path())
 	}
 
 	if a1.Path() != "a1/" {
 		t.Errorf("%#s!=a1/", a1.Path())
+	}
+
+	if a1.calcDepth() != 0 {
+		t.Errorf("Wrong depth a1 %s", a1.calcDepth())
+	}
+
+	if a2.calcDepth() != 1 {
+		t.Errorf("Wrong depth a2 %s", a2.calcDepth())
+	}
+
+	if a5.calcDepth() != 2 {
+		t.Errorf("Wrong depth a5 %s", a5.calcDepth())
+	}
+
+	if a5.Depth != 2 {
+		t.Errorf("Wrong depth a5 %s", a5.calcDepth())
+	}
+
+	if a1.Depth != 0 {
+		t.Errorf("Wrong depth a1 %s", a1.calcDepth())
 	}
 
 }
