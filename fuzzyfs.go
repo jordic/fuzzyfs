@@ -130,23 +130,37 @@ func (d *DirList) readDirNames(dirname string) ([]string, error) {
 func (d *DirList) Query(q string, umbral int) Results {
 	// Levenshtein
 	res := Results{}
+
+	// loop till get 10
+	var l0, l1 int
+	l0, l1 = 0, 0
+
 	for r := 0; r < d.length; r++ {
-		var word1 string
-		// @todo do something with extensions
-		pos := strings.LastIndex(d.List[r].Name, ".")
-		if pos != -1 {
-			// is a file
-			word1 = d.List[r].Name[0:pos]
-		} else {
-			word1 = strings.ToLower(d.List[r].Name)
-		}
+
+		word1 := strings.ToLower(d.List[r].Name)
 		word2 := strings.ToLower(q)
 
-		v := fuzzy.Levenshtein(&word1, &word2)
+		var v int
+		if word1 == word2 {
+			v = 0
+			l0++
+		} else if strings.HasPrefix(word1, word2) {
+			v = 1
+			l1++
+		} else if strings.Contains(word1, word2) {
+			v = 2
+		} else {
+			v = fuzzy.Levenshtein(&word1, &word2)
+		}
 
 		if v <= umbral {
 			pa := Result{d.List[r].Path(), v, d.List[r].Depth}
 			res = append(res, pa)
+
+			if (l0 + l1) >= 10 {
+				break
+			}
+
 		}
 	}
 
