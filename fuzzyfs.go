@@ -18,7 +18,7 @@ import (
 //  MaxDepth is used for specifing the recursion level where:
 //      0 indicates only the main dir
 //      n indicates the level of subdirs
-//  PathSelect
+//  PathSelect func for filtering dir input
 //
 //      list.Query(q string)
 func NewDirList() *DirList {
@@ -131,10 +131,6 @@ func (d *DirList) Query(q string, umbral int) Results {
 	// Levenshtein
 	res := Results{}
 
-	// loop till get 10
-	var l0, l1 int
-	l0, l1 = 0, 0
-
 	for r := 0; r < d.length; r++ {
 
 		word1 := strings.ToLower(d.List[r].Name)
@@ -143,10 +139,8 @@ func (d *DirList) Query(q string, umbral int) Results {
 		var v int
 		if word1 == word2 {
 			v = 0
-			l0++
 		} else if strings.HasPrefix(word1, word2) {
 			v = 1
-			l1++
 		} else if strings.Contains(word1, word2) {
 			v = 2
 		} else {
@@ -156,11 +150,6 @@ func (d *DirList) Query(q string, umbral int) Results {
 		if v <= umbral {
 			pa := Result{d.List[r].Path(), v, d.List[r].Depth}
 			res = append(res, pa)
-
-			if (l0 + l1) >= 10 {
-				break
-			}
-
 		}
 	}
 
