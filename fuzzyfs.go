@@ -277,9 +277,9 @@ func (d *Dir) calcDepth() int {
 
 // Result is a result for querys
 type Result struct {
-	Path     string
+	Path     string `json:"path"`
 	Distance int
-	Depth    int
+	Depth    int `json:"depth"`
 }
 
 func (r Result) String() string {
