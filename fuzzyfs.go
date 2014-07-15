@@ -23,7 +23,7 @@ import (
 //      list.Query(q string)
 func NewDirList() *DirList {
 	return &DirList{
-		length: 0,
+		Length: 0,
 		List:   make([]Dir, 100),
 		// As a default we dont limit the depth crawl
 		MaxDepth:   1000,
@@ -33,15 +33,15 @@ func NewDirList() *DirList {
 
 // DirList is the main object..
 type DirList struct {
-	length     int
+	Length     int
 	List       []Dir
 	MaxDepth   int
 	PathSelect PathSelectFn
 }
 
 // Size of index
-func (d *DirList) Length() int {
-	return d.length
+func (d *DirList) GetLength() int {
+	return d.Length
 }
 
 // Add a filesystem entry to the List
@@ -52,15 +52,15 @@ func (d *DirList) Add(name string, p *Dir) *Dir {
 
 	a.Depth = a.calcDepth()
 
-	if len(d.List) == d.length {
+	if len(d.List) == d.Length {
 		b := make([]Dir, len(d.List)+100)
 		copy(b, d.List)
 		d.List = b
 	}
 
-	d.List[d.length] = a
-	d.length = d.length + 1
-	return &d.List[d.length-1]
+	d.List[d.Length] = a
+	d.Length = d.Length + 1
+	return &d.List[d.Length-1]
 }
 
 // Traverses Dirlist, and returns a File object for a given name and depth
@@ -131,7 +131,7 @@ func (d *DirList) Query(q string, umbral int) Results {
 	// Levenshtein
 	res := Results{}
 
-	for r := 0; r < d.length; r++ {
+	for r := 0; r < d.Length; r++ {
 
 		word1 := strings.ToLower(d.List[r].Name)
 		word2 := strings.ToLower(q)
