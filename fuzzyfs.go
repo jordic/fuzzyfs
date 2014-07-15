@@ -12,15 +12,24 @@ import (
 // NewDirList generates a new list of dirs...
 
 // For populating it with files you must
-//    dirlist.Populate( path, 0)
-//  path must be a valid path, and 0 indicates the starting level
+//    dirlist.Populate( path )
+//  path must be a valid path
 //
 //  MaxDepth is used for specifing the recursion level where:
 //      0 indicates only the main dir
 //      n indicates the level of subdirs
 //  PathSelect func for filtering dir input
+//	with this signature:
+//		func (path string, info os.FileInfo) bool
 //
-//      list.Query(q string)
+// For querying results, use Query
+//		list.Query(q string, umbral)
+//		umbral indicates the "distance" filtering..
+//		0 is the same word
+//		1 the string starts with the word, or has a letter distinct
+//		2 string contains the word or 2 letters distant.
+//	@todo implement slice excluded files...
+
 func NewDirList() *DirList {
 	return &DirList{
 		Length: 0,
@@ -48,7 +57,7 @@ func (d *DirList) GetLength() int {
 func (d *DirList) Add(name string, p *Dir) *Dir {
 	a := Dir{
 		Name:   name,
-		parent: p}
+		Parent: p}
 
 	a.Depth = a.calcDepth()
 
@@ -82,7 +91,7 @@ func (d *DirList) Get(name string, depth int) *Dir {
 
 // Populate acually traverses the filsystem, storing dir info
 // on the list..
-func (d *DirList) Populate(path string, parent *Dir) error {
+func (d *DirList) Populate(path string, Parent *Dir) error {
 
 	f, err := d.readDirNames(path)
 	if err != nil {
@@ -90,7 +99,7 @@ func (d *DirList) Populate(path string, parent *Dir) error {
 	}
 
 	for k := range f {
-		res := d.Add(f[k], parent)
+		res := d.Add(f[k], Parent)
 		// Crawl till MaxDepth
 		var err error
 		if d.MaxDepth > res.Depth+1 {
@@ -218,7 +227,7 @@ func AllFiles(path string, info os.FileInfo) bool {
 //
 type Dir struct {
 	Name   string
-	parent *Dir
+	Parent *Dir
 	Depth  int
 }
 
@@ -230,16 +239,16 @@ func (d *Dir) String() string {
 // Parents returns a slice of element Parents
 func (d *Dir) Parents() []*Dir {
 
-	if d.parent == nil {
+	if d.Parent == nil {
 		return nil
 	}
 
 	s := []*Dir{}
 	s = append(s, d)
-	p := d.parent
-	for p.parent != nil {
+	p := d.Parent
+	for p.Parent != nil {
 		s = append(s, p)
-		p = p.parent
+		p = p.Parent
 	}
 	s = append(s, p)
 	return s
@@ -247,7 +256,7 @@ func (d *Dir) Parents() []*Dir {
 
 // Path rejoins the path with their ancestors
 func (d *Dir) Path() string {
-	if d.parent == nil {
+	if d.Parent == nil {
 		return d.Name + "/"
 	}
 	s := d.Parents()
@@ -263,14 +272,14 @@ func (d *Dir) Path() string {
 }
 
 func (d *Dir) calcDepth() int {
-	if d.parent == nil {
+	if d.Parent == nil {
 		return 0
 	}
 	depth := 1
-	p := d.parent
-	for p.parent != nil {
+	p := d.Parent
+	for p.Parent != nil {
 		depth += 1
-		p = p.parent
+		p = p.Parent
 	}
 	return depth
 }

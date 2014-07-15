@@ -35,8 +35,8 @@ func TestDirList(t *testing.T) {
 		t.Errorf("%s!=a2", r.Name)
 	}
 
-	if r.parent != a1 {
-		t.Errorf("%s!=%s", r.parent, a1)
+	if r.Parent != a1 {
+		t.Errorf("%s!=%s", r.Parent, a1)
 	}
 	m := a5.Parents()
 	if m[0] != a5 {

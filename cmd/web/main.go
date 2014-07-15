@@ -41,7 +41,7 @@ func main() {
 			panic(err)
 		}
 		endTime := time.Now()
-		fmt.Printf("Total list entries: %d\n", llista.Length())
+		fmt.Printf("Total list entries: %d\n", llista.GetLength())
 		fmt.Println("time indexing...", endTime.Sub(startTime))
 
 	}()
